@@ -3,6 +3,10 @@ import { Urbanist } from "next/font/google";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
+import { ModalProvider } from "@/providers/modal-provider";
+
+import { Toaster } from "@/components/ui/sonner"
+
 
 const font = Urbanist({ subsets: ["latin"] });
 
@@ -25,9 +29,11 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <TooltipProvider>
+            <ModalProvider />
             {children}
           </TooltipProvider>
         </ThemeProvider>
+        <Toaster />
       </body>
     </html>
   );
