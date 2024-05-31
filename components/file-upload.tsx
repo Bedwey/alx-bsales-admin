@@ -8,8 +8,7 @@ import { Button } from './ui/button';
 import { Input } from "./ui/input";
 
 export enum SupabaseFilesBuckets {
-    CourseImages = 'course_images',
-    CourseAttachments = 'courses_attachments',
+    Billboards = 'billboards',
 }
 
 interface FileUploadProps {
@@ -31,7 +30,7 @@ export const FileUpload = ({ bucket, folderName, accept, onCompleted, onError, m
         multiple: multiple || false,
         accept,
         noKeyboard: true,
-        maxSize: (bucket === SupabaseFilesBuckets.CourseImages) ? 4 * 1024 * 1024 : 15 * 1024 * 1024,
+        maxSize: (bucket === SupabaseFilesBuckets.Billboards) ? 4 * 1024 * 1024 : 15 * 1024 * 1024,
         disabled: isUploading,
     });
 
@@ -47,11 +46,11 @@ export const FileUpload = ({ bucket, folderName, accept, onCompleted, onError, m
                 onCompleted(data!, acceptedFiles.map(file => file.name));
             }
         }}>
-            <div {...getRootProps({ className: 'flex flex-col items-center aspect-video justify-center border-2 border-dashed hover:border-primary gap-y-2 transition-all' })}>
+            <div {...getRootProps({ className: 'flex flex-col items-center w-[400px] h-[200px] justify-center border-2 border-dashed hover:border-primary gap-y-2 transition-all' })}>
                 <Input {...getInputProps({ name: 'file' })} />
                 <UploadIcon className="h-8 w-8 text-primary" />
                 <p className="text-primary">
-                    {isDragActive ? 'سيبها هنا' : 'قم بالسحب والافلات هنا'}
+                    {isDragActive ? 'Click here or drop a file' : 'Drag and drop a file here or click to select a file'}
                 </p>
                 {acceptedFiles.length > 0 &&
                     <p className="text-primary">
@@ -65,7 +64,7 @@ export const FileUpload = ({ bucket, folderName, accept, onCompleted, onError, m
                                     <Loader2Icon className="animate-spin h-8 w-8" />
                                 </> :
                                 <>
-                                    رفع {acceptedFiles.length}
+                                    Upload {acceptedFiles.length}
                                 </>
                             }
                         </Button>

@@ -3,10 +3,12 @@
 import Link from "next/link"
 import {
     Home,
-    LineChart,
+    Layers3,
     Package,
     Package2,
+    Palette,
     Presentation,
+    Ruler,
     Settings,
     ShoppingCart,
 } from "lucide-react"
@@ -34,9 +36,19 @@ export default function Sidebar() {
             href: `/${params.storeId}/billboards`,
         },
         {
-            title: "Orders",
-            icon: ShoppingCart,
-            href: "/orders",
+            title: "Categories",
+            icon: Layers3,
+            href: `/${params.storeId}/categories`,
+        },
+        {
+            title: "Sizes",
+            icon: Ruler,
+            href: `/${params.storeId}/sizes`,
+        },
+        {
+            title: "Colors",
+            icon: Palette,
+            href: `/${params.storeId}/colors`,
         },
         {
             title: "Products",
@@ -44,10 +56,10 @@ export default function Sidebar() {
             href: "/products",
         },
         {
-            title: "Analytics",
-            icon: LineChart,
-            href: "/analytics",
-        }
+            title: "Orders",
+            icon: ShoppingCart,
+            href: "/orders",
+        },
     ];
 
 

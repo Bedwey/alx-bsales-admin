@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { Button } from "./button";
 import { Trash } from "lucide-react";
 import Image from "next/image";
+import { FileUpload, SupabaseFilesBuckets } from "../file-upload";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface ImageUploadProps {
     disabled?: boolean;
@@ -18,6 +21,8 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     onRemove,
     value,
 }) => {
+    const router = useRouter();
+    const accept = { 'image/jpeg': ['.jpg'] };
     const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
@@ -52,7 +57,23 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
                     </div>
                 ))}
             </div>
-
+            <FileUpload
+                name="image"
+                accept={accept}
+                onCompleted={(url) => {
+                    onUpload({ image_url: url[0] });
+                }}
+                onError={(message) => {
+                    toast.error(message);
+                    router.refresh();
+                }}
+                bucket={SupabaseFilesBuckets.Billboards}
+            />
+            <div className='text-sm text-muted-foreground mt-4'>
+                Best image size: 1920x1080
+            </div>
         </div>
     );
 }
+
+export default ImageUpload;

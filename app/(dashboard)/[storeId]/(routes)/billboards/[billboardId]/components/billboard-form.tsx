@@ -4,20 +4,21 @@ import { AlertModal } from "@/components/modals/alert-modal";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Heading } from "@/components/ui/heading";
+import ImageUpload from "@/components/ui/image-upload";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { useOrigin } from "@/hooks/use-origin";
 import { Database } from "@/utils/supabase/supabase";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { Trash } from "lucide-react";
+import { Edit, Trash } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
+import Image from "next/image";
 
-type Billboard = Database['public']['Tables']['billboard']['Row'];
+type Billboard = Database['public']['Tables']['billboards']['Row'];
 
 interface BillboardFormProps {
     inialData: Billboard | null;
@@ -33,8 +34,9 @@ type BillboardFormValues = z.infer<typeof formSchema>;
 export const BillboardForm: React.FC<BillboardFormProps> = ({ inialData }) => {
     const params = useParams();
     const router = useRouter();
-    const origin = useOrigin();
 
+
+    const [editing, setEditing] = useState(false);
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
 
@@ -52,10 +54,14 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({ inialData }) => {
     const onSubmit = async (values: BillboardFormValues) => {
         try {
             setLoading(true);
-            await axios.patch(`/api/stores/${params.storeId}`, values);
+            if (inialData) {
+                await axios.patch(`/api/stores/${params.storeId}/billboards/${params.billboardId}`, values);
+            } else {
+                await axios.post(`/api/stores/${params.storeId}/billboards`, values);
+            }
             router.refresh();
         } catch {
-            toast.error("Failed to update store settings");
+            toast.error("Something went wrong. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -104,6 +110,52 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({ inialData }) => {
 
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 w-full">
+                    <FormField
+                        control={form.control}
+                        name="image_url"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="flex items-center gap-x-4">
+                                    Background Image
+                                    {field.value && (
+                                        <Button
+                                            variant='outline'
+                                            size='icon'
+                                            type="button"
+                                            onClick={() => setEditing(!editing)}
+                                        >
+                                            <Edit className="h-4 w-4" />
+                                        </Button>
+                                    )}
+                                </FormLabel>
+                                <FormControl>
+                                    <div className="h-[250px]">
+                                        {field.value && editing ? (
+                                            <Image
+                                                className="object-cover rounded-md overflow-hidden"
+                                                alt="Image"
+                                                src={field.value}
+                                                width={400}
+                                                height={200}
+                                                objectFit="cover"
+                                            />
+
+
+                                        ) : (
+                                            <ImageUpload
+                                                value={field.value ? [field.value] : []}
+                                                onChange={(value) => form.setValue('image_url', value)}
+                                                onRemove={() => form.setValue('image_url', '')}
+                                            />
+                                        )}
+
+                                    </div>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
                     <div className="grid grid-cols-3 gap-8">
                         <FormField
                             control={form.control}

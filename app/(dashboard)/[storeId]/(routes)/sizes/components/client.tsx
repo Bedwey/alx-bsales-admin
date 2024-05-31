@@ -10,14 +10,14 @@ import { DataTable } from "./data-table";
 import { columns } from "./columns";
 import { ApiList } from "@/components/ui/api-list";
 
-type Billboard = Database['public']['Tables']['billboards']['Row'];
+type SizeColumn = Database['public']['Tables']['sizes']['Row'];
 
 
-interface BillboardClientProps {
-    data: Billboard[];
+interface SizeClientProps {
+    data: SizeColumn[];
 }
 
-export const BillboardClient: React.FC<BillboardClientProps> = ({ data }) => {
+export const SizeClient: React.FC<SizeClientProps> = ({ data }) => {
     const router = useRouter();
     const params = useParams();
 
@@ -25,11 +25,11 @@ export const BillboardClient: React.FC<BillboardClientProps> = ({ data }) => {
         <>
             <div className="flex items-center justify-between">
                 <Heading
-                    title={`Billboards (${data.length})`}
-                    description="Manage your billboards from your store."
+                    title={`Sizes (${data.length})`}
+                    description="List of all sizes."
                 />
 
-                <Button onClick={() => router.push(`/${params.storeId}/billboards/new`)}>
+                <Button onClick={() => router.push(`/${params.storeId}/sizes/new`)}>
                     <Plus className="mr-2 h-4 w-4" />
                     Add New
                 </Button>
@@ -41,12 +41,12 @@ export const BillboardClient: React.FC<BillboardClientProps> = ({ data }) => {
             />
             <Heading
                 title="API"
-                description="API for billboards."
+                description="API for sizes."
             />
             <Separator />
             <ApiList
-                entityName="billboards"
-                entityIdName="billboardId"
+                entityName="sizes"
+                entityIdName="sizeId"
             />
         </>
     );

@@ -9,24 +9,24 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      billboard: {
+      billboards: {
         Row: {
           created_at: string
-          id: number
+          id: string
           image_url: string
           label: string
           store_id: string
         }
         Insert: {
           created_at?: string
-          id?: number
+          id?: string
           image_url: string
           label: string
           store_id: string
         }
         Update: {
           created_at?: string
-          id?: number
+          id?: string
           image_url?: string
           label?: string
           store_id?: string
@@ -34,6 +34,206 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "billboard_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      categories: {
+        Row: {
+          billboard_id: string
+          created_at: string
+          id: string
+          name: string
+          store_id: string
+        }
+        Insert: {
+          billboard_id: string
+          created_at?: string
+          id?: string
+          name: string
+          store_id: string
+        }
+        Update: {
+          billboard_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "categories_billboard_id_fkey"
+            columns: ["billboard_id"]
+            isOneToOne: false
+            referencedRelation: "billboards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "categories_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      colors: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          store_id: string
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          store_id: string
+          value: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          store_id?: string
+          value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "colors_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          category_id: string
+          color_id: string
+          created_at: string
+          id: string
+          is_archived: boolean
+          is_featured: boolean
+          name: string
+          price: number
+          size_id: string
+          store_id: string
+        }
+        Insert: {
+          category_id: string
+          color_id: string
+          created_at?: string
+          id?: string
+          is_archived: boolean
+          is_featured: boolean
+          name: string
+          price: number
+          size_id: string
+          store_id: string
+        }
+        Update: {
+          category_id?: string
+          color_id?: string
+          created_at?: string
+          id?: string
+          is_archived?: boolean
+          is_featured?: boolean
+          name?: string
+          price?: number
+          size_id?: string
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_color_id_fkey"
+            columns: ["color_id"]
+            isOneToOne: false
+            referencedRelation: "colors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_size_id_fkey"
+            columns: ["size_id"]
+            isOneToOne: false
+            referencedRelation: "sizes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products_images: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_images_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sizes: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          store_id: string
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          store_id: string
+          value: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          store_id?: string
+          value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sizes_store_id_fkey"
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"

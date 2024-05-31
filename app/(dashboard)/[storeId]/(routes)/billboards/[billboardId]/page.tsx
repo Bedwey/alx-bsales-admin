@@ -5,16 +5,15 @@ import { BillboardForm } from './components/billboard-form';
 async function BillboardPage({ params }: { params: { billboardId: string } }) {
 
     const supabase = await createClient();
-    const { data: billboar } = await supabase
-        .from("billboard")
+    const { data: billboard } = await supabase
+        .from("billboards")
         .select("*")
-        .match({ id: params.billboardId }).single();
+        .eq("id", params.billboardId).single();
 
     return (
-        // <div>existing billboard {billboar?.label}</div>
         <div className='flex-col'>
             <div className='flex-1 space-y-4 p-8 pt-6'>
-                <BillboardForm inialData={null} />
+                <BillboardForm inialData={billboard} />
             </div>
         </div>
     )
