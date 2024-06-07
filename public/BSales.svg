@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="700px" height="700px" viewBox="0 0 700 700" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <path d="M650 0C677.618 0 700 22.382 700 50L700 650C700 677.618 677.618 700 650 700L50 700C22.382 700 0 677.618 0 650L0 50C0 22.382 22.382 0 50 0L650 0Z" id="path_1" />
+    <clipPath id="clip_1">
+      <use xlink:href="#path_1" clip-rule="evenodd" fill-rule="evenodd" />
+    </clipPath>
+  </defs>
+  <g id="Group">
+    <g id="Logo 1 Copy">
+      <path d="M650 0C677.618 0 700 22.382 700 50L700 650C700 677.618 677.618 700 650 700L50 700C22.382 700 0 677.618 0 650L0 50C0 22.382 22.382 0 50 0L650 0Z" id="Logo-1-Copy" fill="#FFFFFF" stroke="none" />
+      <path d="M521.022 550L453.63 550L349.826 250L244.935 550L177 550L317.217 150L381.891 150L521.022 550Z" id="Path" fill="#181818" fill-rule="evenodd" stroke="none" clip-path="url(#clip_1)" />
+    </g>
+  </g>
+</svg>

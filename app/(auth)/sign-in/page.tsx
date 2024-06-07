@@ -6,6 +6,8 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import Logo from "@/public/BSales.svg"
+
 
 export default function SignInPage() {
     return (
@@ -54,14 +56,15 @@ export default function SignInPage() {
                         </div>
                     </div>
                 </div>
-                <div className="hidden bg-muted lg:block">
-                    <Image
-                        src="/placeholder.svg"
-                        alt="Image"
-                        width="1920"
-                        height="1080"
-                        className="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-                    />
+                <div className="hidden bg-muted lg:block lg:h-screen">
+                    <div className='flex items-center justify-center h-full w-full object-cover'>
+                        <Image
+                            src={Logo}
+                            alt="Image"
+                            width="200"
+                            height="200"
+                        />
+                    </div>
                 </div>
             </div>
         </form>
