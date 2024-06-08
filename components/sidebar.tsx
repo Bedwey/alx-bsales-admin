@@ -58,7 +58,7 @@ export default function Sidebar() {
         {
             title: "Orders",
             icon: ShoppingCart,
-            href: "/orders",
+            href: `/${params.storeId}/orders`,
         },
     ];
 

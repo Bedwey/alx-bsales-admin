@@ -194,7 +194,7 @@ export const FileUploader = forwardRef<
 
         useEffect(() => {
             if (!value) return;
-            if (value.length === maxFiles) {
+            if (value.length >= maxFiles) {
                 setIsLOF(true);
                 return;
             }

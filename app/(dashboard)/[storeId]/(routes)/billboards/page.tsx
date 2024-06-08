@@ -10,13 +10,13 @@ const BillboardsPage = async ({ params }: { params: { storeId: string } }) => {
 
     const { data: billboards } = await supabase.from('billboards').select().eq('store_id', params.storeId) || [];
 
-    const formattedBillboards: Billboard[] = billboards!.map((item) => ({
+    const formattedBillboards: Billboard[] = billboards?.map((item) => ({
         id: item.id,
         label: item.label,
         created_at: format(item.created_at, 'MM/dd/yyyy'),
         image_url: item.image_url,
         store_id: item.store_id,
-    }));
+    })) || [];
 
 
     return (

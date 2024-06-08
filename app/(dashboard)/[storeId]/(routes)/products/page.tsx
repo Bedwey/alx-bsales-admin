@@ -11,7 +11,7 @@ const ProductsPage = async ({ params }: { params: { storeId: string } }) => {
 
     const { data: products } = await supabase.from('products').select('*, categories(name), sizes(name), colors(name, value)').eq('store_id', params.storeId) || [];
 
-    const formattedProducts: Product[] = products!.map((item) => ({
+    const formattedProducts: Product[] = products?.map((item) => ({
         id: item.id,
         name: item.name,
         created_at: format(item.created_at, 'MM/dd/yyyy'),
@@ -27,7 +27,7 @@ const ProductsPage = async ({ params }: { params: { storeId: string } }) => {
         size_name: item.sizes?.name || "",
         is_featured: item.is_featured,
         store_id: item.store_id,
-    }));
+    })) || [];
 
 
     return (

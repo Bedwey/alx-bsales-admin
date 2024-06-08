@@ -206,7 +206,13 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({ inialData }) => {
                                                     ))}
                                             </FileUploaderContent>
                                         </FileUploader>
-                                        {loading && <div className="absolute inset-0 bg-neutral-900 opacity-50 z-10"></div>}
+                                        {loading &&
+                                            (
+                                                <div className="absolute inset-0 bg-neutral-900 opacity-50 z-10">
+                                                    <Loader2 className="animate-spin mx-auto h-8 w-8" />
+                                                </div>
+                                            )
+                                        }
                                     </div>
                                 </FormControl>
                                 <FormMessage />

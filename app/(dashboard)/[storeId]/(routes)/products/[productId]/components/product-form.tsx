@@ -1,5 +1,8 @@
 "use client";
 
+import Image from "next/image";
+import { FileInput, FileUploader, FileUploaderContent, FileUploaderItem } from "@/components/extension/file-uploader";
+import { FileSvgDraw } from "@/components/file_svg";
 import { AlertModal } from "@/components/modals/alert-modal";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -13,10 +16,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { Loader2, Trash } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
+import { DropzoneOptions } from "react-dropzone";
+import SupabaseUploader from "@/lib/uploader";
 
 
 type Product = Database['public']['Tables']['products']['Row'];
@@ -31,7 +36,7 @@ interface ProductFormProps {
 
 const formSchema = z.object({
     name: z.string().min(1),
-    price: z.number().min(1),
+    price: z.coerce.number().min(1),
     category_id: z.string().min(1),
     color_id: z.string().min(1),
     size_id: z.string().min(1),
@@ -56,6 +61,17 @@ export const ProductForm: React.FC<ProductFormProps> = ({ inialData, categories,
     const action = inialData ? "Update" : "Create";
 
 
+    const [files, setFiles] = useState<File[] | null>([]);
+
+    const dropZoneConfig = {
+        accept: {
+            "image/*": [".jpg", ".jpeg", ".png"],
+        },
+        multiple: true,
+        maxFiles: 4,
+        maxSize: 1 * 1024 * 1024,
+    } satisfies DropzoneOptions;
+
     const form = useForm<BillboardFormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: inialData || {
@@ -70,19 +86,61 @@ export const ProductForm: React.FC<ProductFormProps> = ({ inialData, categories,
         },
     });
 
+    useEffect(() => {
+        if (inialData) {
+            setLoading(true);
+            inialData.products_images.forEach((image) => {
+                fetch(image.url)
+                    .then(res => res.blob())
+                    .then(blob => {
+                        const file = new File([blob], "Billboard Background", { type: blob.type });
+                        setFiles((prev) => [...(prev || []), file]);
+                    });
+            });
+            setLoading(false);
+        }
+    }, []);
 
+    const onValueChange = async (value: File[] | null) => {
+        if (value && value.length > 0 && value.length > (files?.length || 0)) {
+            try {
+                setLoading(true);
+                const formData = new FormData();
+                value.forEach((file) => {
+                    formData.append("file", file);
+                });
 
+                const { data } = await SupabaseUploader({ formData: formData, bucket: 'products_images', folderName: `${params.storeId}` });
+
+                if (data) {
+                    form.setValue("products_images",
+                        data.map((url: string) => {
+                            return { url };
+                        })
+                    );
+                    setFiles(value);
+                }
+            } catch (error) {
+                toast.error("Something went wrong. Please try again.");
+            } finally {
+                setLoading(false);
+            }
+        } else {
+            form.setValue("products_images", []);
+            setFiles(value);
+        }
+    };
 
     const onSubmit = async (values: BillboardFormValues) => {
         try {
             setLoading(true);
             if (inialData) {
-                await axios.patch(`/api/${params.storeId}/billboards/${params.billboardId}`, values);
+                await axios.patch(`/api/${params.storeId}/products/${params.productId}`, values);
             } else {
-                await axios.post(`/api/${params.storeId}/billboards`, values);
+                await axios.post(`/api/${params.storeId}/products`, values);
             }
             toast.success(toastMessage);
-            router.push(`/${params.storeId}/billboards`);
+            router.push(`/${params.storeId}/products`);
             router.refresh();
         } catch {
             toast.error("Something went wrong. Please try again.");
@@ -94,9 +152,9 @@ export const ProductForm: React.FC<ProductFormProps> = ({ inialData, categories,
     const onDelete = async () => {
         try {
             setLoading(true);
-            await axios.delete(`/api/${params.storeId}/billboards/${params.billboardId}`);
+            await axios.delete(`/api/${params.storeId}/products/${params.productId}`);
             router.refresh();
-            router.push(`/${params.storeId}/billboards`);
+            router.push(`/${params.storeId}/products`);
         } catch (error) {
             toast.error("Something went wrong. Please try again.");
         } finally {
@@ -132,7 +190,68 @@ export const ProductForm: React.FC<ProductFormProps> = ({ inialData, categories,
 
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 w-full">
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
+                    <FormField
+                        control={form.control}
+                        name="products_images"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Background Image</FormLabel>
+                                <FormControl>
+                                    <div>
+                                        <FileUploader
+                                            value={files}
+                                            onValueChange={onValueChange}
+                                            dropzoneOptions={dropZoneConfig}
+                                            reSelect={true}
+                                            className="bg-background rounded-lg p-2 w-full"
+                                        >
+                                            <FileUploaderContent
+                                                className="flex-row flex-row-2 md:flex-row-3 gap-4"
+                                            >
+                                                {files &&
+                                                    files.length > 0 &&
+                                                    files.map((file, i) => (
+                                                        <FileUploaderItem
+                                                            key={i}
+                                                            index={i}
+                                                            className="h-36 w-36"
+                                                        >
+                                                            <Image
+                                                                src={URL.createObjectURL(file)}
+                                                                alt="Product Image"
+                                                                layout='fill'
+                                                                objectFit='cover'
+                                                            />
+                                                        </FileUploaderItem>
+                                                    ))}
+                                            </FileUploaderContent>
+
+                                            <FileInput className="outline-dashed outline-1 outline-white">
+                                                <div className="flex items-center justify-center flex-col pt-3 pb-4 w-full ">
+                                                    <FileSvgDraw />
+                                                </div>
+                                            </FileInput>
+
+                                        </FileUploader>
+                                        {loading &&
+                                            (
+                                                <div className="absolute inset-0 bg-neutral-900 opacity-50 z-10">
+                                                    <div
+                                                        className="flex items-center justify-center h-full w-full bg-neutral-900 opacity-50 z-10"
+                                                    >
+                                                        <Loader2 className="animate-spin mx-auto h-8 w-8" />
+                                                    </div>
+                                                </div>
+                                            )
+                                        }
+                                    </div>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
                         <FormField
                             control={form.control}
                             name="name"
