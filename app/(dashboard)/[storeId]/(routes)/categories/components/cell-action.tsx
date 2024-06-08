@@ -10,7 +10,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
-type CategoryColumn = Database['public']['Tables']['categories']['Row'] | { billboard_label: string };
+type CategoryColumn = Database['public']['Tables']['categories']['Row'] & { billboard_label: string };
 
 interface CellActionProps {
     data: CategoryColumn;
