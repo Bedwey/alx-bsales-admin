@@ -56,8 +56,8 @@ export const ColorForm: React.FC<ColorFormProps> = ({ inialData }) => {
             }
 
             toast.success(toastMessage);
-            router.refresh();
             router.push(`/${params.storeId}/colors`);
+            router.refresh();
         } catch {
             toast.error("Something went wrong. Please try again.");
         } finally {

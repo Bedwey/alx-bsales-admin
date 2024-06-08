@@ -4,19 +4,27 @@ import { AlertModal } from "@/components/modals/alert-modal";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Heading } from "@/components/ui/heading";
-import ImageUpload from "@/components/ui/image-upload";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Database } from "@/utils/supabase/supabase";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { Edit, Trash } from "lucide-react";
+import { Loader2, Trash } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 import Image from "next/image";
+
+import {
+    FileUploader,
+    FileUploaderContent,
+    FileUploaderItem,
+    FileInput,
+} from "@/components/extension/file-uploader";
+import { DropzoneOptions } from "react-dropzone";
+import SupabaseUploader from "@/lib/uploader";
 
 type Billboard = Database['public']['Tables']['billboards']['Row'];
 
@@ -31,12 +39,51 @@ const formSchema = z.object({
 
 type BillboardFormValues = z.infer<typeof formSchema>;
 
+const FileSvgDraw = () => {
+    return (
+        <>
+            <svg
+                className="w-8 h-8 mb-3 text-gray-500 dark:text-gray-400"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 20 16"
+            >
+                <path
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                />
+            </svg>
+            <p className="mb-1 text-sm text-gray-500 dark:text-gray-400">
+                <span className="font-semibold">Click to upload</span>
+                &nbsp; or drag and drop
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+                SVG, PNG, JPG or GIF
+            </p>
+        </>
+    );
+};
+
 export const BillboardForm: React.FC<BillboardFormProps> = ({ inialData }) => {
     const params = useParams();
     const router = useRouter();
 
+    const [files, setFiles] = useState<File[] | null>([]);
 
-    const [editing, setEditing] = useState(false);
+    const dropZoneConfig = {
+        accept: {
+            "image/*": [".jpg", ".jpeg", ".png"],
+        },
+        multiple: false,
+        maxFiles: 1,
+        maxSize: 1 * 1024 * 1024,
+    } satisfies DropzoneOptions;
+
+
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
 
@@ -51,35 +98,78 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({ inialData }) => {
         defaultValues: inialData || { label: '', image_url: '' },
     });
 
+    useEffect(() => {
+        if (inialData) {
+            setLoading(true);
+            fetch(inialData.image_url)
+                .then(res => res.blob())
+                .then(blob => {
+                    const file = new File([blob], "Billboard Background", { type: blob.type });
+                    setFiles([file]);
+                });
+            setLoading(false);
+        }
+    }, [inialData]);
+
+
+    const onValueChange = async (value: File[] | null) => {
+        if (value !== null && value.length > 0) {
+            try {
+                setLoading(true);
+                const file = value[0];
+                const formData = new FormData();
+                formData.append('file', file);
+                const { data, error } = await SupabaseUploader({ formData: formData, bucket: 'billboards', folderName: `${params.storeId}` });
+                if (data) {
+                    form.setValue("image_url", data[0]);
+                    setFiles(value);
+                }
+
+                if (error) {
+                    toast.error(error);
+                }
+            } catch (error) {
+                toast.error("Something went wrong. Please try again.");
+            } finally {
+                setLoading(false);
+            }
+        } else {
+            console.log("Value changed to null");
+            form.setValue("image_url", "");
+            setFiles(value);
+        }
+    };
+
     const onSubmit = async (values: BillboardFormValues) => {
         try {
             setLoading(true);
             if (inialData) {
-                await axios.patch(`/api/stores/${params.storeId}/billboards/${params.billboardId}`, values);
+                await axios.patch(`/api/${params.storeId}/billboards/${params.billboardId}`, values);
             } else {
-                await axios.post(`/api/stores/${params.storeId}/billboards`, values);
+                await axios.post(`/api/${params.storeId}/billboards`, values);
             }
+            toast.success(toastMessage);
+            router.push(`/${params.storeId}/billboards`);
             router.refresh();
         } catch {
             toast.error("Something went wrong. Please try again.");
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     const onDelete = async () => {
         try {
             setLoading(true);
-            await axios.delete(`/api/stores/${params.storeId}`);
+            await axios.delete(`/api/${params.storeId}/billboards/${params.billboardId}`);
             router.refresh();
-            router.push("/");
+            router.push(`/${params.storeId}/billboards`);
         } catch (error) {
-            toast.error("Make sure to delete all products and orders before deleting the store.");
+            toast.error("Something went wrong. Please try again.");
         } finally {
             setLoading(false);
             setOpen(false);
         }
-
     };
 
     return (
@@ -103,7 +193,6 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({ inialData }) => {
                         </Button>
                     )
                 }
-
             </div>
 
             <Separator />
@@ -115,40 +204,37 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({ inialData }) => {
                         name="image_url"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel className="flex items-center gap-x-4">
-                                    Background Image
-                                    {field.value && (
-                                        <Button
-                                            variant='outline'
-                                            size='icon'
-                                            type="button"
-                                            onClick={() => setEditing(!editing)}
-                                        >
-                                            <Edit className="h-4 w-4" />
-                                        </Button>
-                                    )}
-                                </FormLabel>
+                                <FormLabel>Background Image</FormLabel>
                                 <FormControl>
-                                    <div className="h-[250px]">
-                                        {field.value && editing ? (
-                                            <Image
-                                                className="object-cover rounded-md overflow-hidden"
-                                                alt="Image"
-                                                src={field.value}
-                                                width={400}
-                                                height={200}
-                                                objectFit="cover"
-                                            />
-
-
-                                        ) : (
-                                            <ImageUpload
-                                                value={field.value ? [field.value] : []}
-                                                onChange={(value) => form.setValue('image_url', value)}
-                                                onRemove={() => form.setValue('image_url', '')}
-                                            />
-                                        )}
-
+                                    <div className="relative">
+                                        <FileUploader
+                                            value={files}
+                                            onValueChange={onValueChange}
+                                            dropzoneOptions={dropZoneConfig}
+                                            reSelect={true}
+                                            className="relative bg-background rounded-lg p-2 w-full"
+                                        >
+                                            <FileInput className="outline-dashed outline-1 outline-white">
+                                                <div className="flex items-center justify-center flex-col pt-3 pb-4 w-full ">
+                                                    <FileSvgDraw />
+                                                </div>
+                                            </FileInput>
+                                            <FileUploaderContent>
+                                                {files &&
+                                                    files.length > 0 &&
+                                                    files.map((file, i) => (
+                                                        <FileUploaderItem
+                                                            key={i}
+                                                            index={i}
+                                                            className="h-12 w-full bg-background rounded-lg p-2 flex items-center justify-center gap-x-2"
+                                                        >
+                                                            <Image src={URL.createObjectURL(file)} width={30} height={30} alt={""} />
+                                                            <span>{file.name}</span>
+                                                        </FileUploaderItem>
+                                                    ))}
+                                            </FileUploaderContent>
+                                        </FileUploader>
+                                        {loading && <div className="absolute inset-0 bg-neutral-900 opacity-50 z-10"></div>}
                                     </div>
                                 </FormControl>
                                 <FormMessage />
@@ -156,33 +242,29 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({ inialData }) => {
                         )}
                     />
 
-                    <div className="grid grid-cols-3 gap-8">
-                        <FormField
-                            control={form.control}
-                            name="label"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Name</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            disabled={loading}
-                                            placeholder="Billboard name"
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-                    <Button disabled={loading} className="ml-auto" type="submit">
+                    <FormField
+                        control={form.control}
+                        name="label"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Name</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        disabled={loading}
+                                        placeholder="Billboard name"
+                                        {...field}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <Button disabled={loading || files?.length == 0} className="ml-auto" type="submit">
                         {action}
+                        {loading && <Loader2 className="animate-spin ml-2 h-4 w-4" />}
                     </Button>
                 </form>
             </Form>
-
-            <Separator />
-
         </>
     );
 }

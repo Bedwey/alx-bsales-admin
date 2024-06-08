@@ -20,55 +20,23 @@ export async function GET(
         const { data } = await supabase.from('billboards').select().eq('store_id', params.storeId);
 
         console.log('[BILLBOARDS-GET]', data);
-
-
         return NextResponse.json(data);
     } catch (error) {
         console.log('[BILLBOARDS-GET]', error);
+
         return new NextResponse("Internal Server Error", { status: 500 });
     }
 }
 
-
-export async function PATCH(
+export async function POST(
     req: Request,
     { params }: { params: { storeId: string } }
 ) {
     try {
-        const supabase = await createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        const body = await req.json();
-
-        const { name } = body;
-
-        if (!user) {
-            return new NextResponse("Unauthenticated", { status: 401 });
+        if (!params.storeId) {
+            return new NextResponse("Store ID is required", { status: 400 });
         }
 
-        if (!name) {
-            return new NextResponse("Name is required", { status: 400 });
-        }
-
-        const { data } = await supabase.from('stores').update({ name })
-            .match({ id: params.storeId, user_id: user.id })
-            .select().single();
-
-        console.log('[STORES-PATCH]', data);
-
-
-        return NextResponse.json(data);
-    } catch (error) {
-        console.log('[STORES-PATCH]', error);
-        return new NextResponse("Internal Server Error", { status: 500 });
-    }
-}
-
-
-export async function DELETE(
-    req: Request,
-    { params }: { params: { storeId: string } }
-) {
-    try {
         const supabase = await createClient();
         const { data: { user } } = await supabase.auth.getUser();
 
@@ -76,13 +44,20 @@ export async function DELETE(
             return new NextResponse("Unauthenticated", { status: 401 });
         }
 
-        const { data } = await supabase.from('stores').delete().match({ id: params.storeId, user_id: user.id });
+        const { label, image_url } = await req.json();
 
-        console.log('[STORES-DELETE]', data);
 
+        if (!label || !image_url) {
+            return new NextResponse("Label and Image Url are required", { status: 400 });
+        }
+
+        const { data } = await supabase.from('billboards').insert([{ label, image_url, store_id: params.storeId }]);
+
+        console.log('[BILLBOARDS-POST]', data);
         return NextResponse.json(data);
     } catch (error) {
-        console.log('[STORES-DELETE]', error);
+        console.log('[BILLBOARDS-POST]', error);
+
         return new NextResponse("Internal Server Error", { status: 500 });
     }
 }

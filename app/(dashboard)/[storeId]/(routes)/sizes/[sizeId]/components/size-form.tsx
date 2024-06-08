@@ -56,8 +56,8 @@ export const SizeForm: React.FC<CategoryFormProps> = ({ inialData }) => {
             }
 
             toast.success(toastMessage);
-            router.refresh();
             router.push(`/${params.storeId}/sizes`);
+            router.refresh();
         } catch {
             toast.error("Something went wrong. Please try again.");
         } finally {

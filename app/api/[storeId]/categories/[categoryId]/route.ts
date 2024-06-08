@@ -3,21 +3,15 @@ import { NextResponse } from "next/server";
 
 export async function GET(
     req: Request,
-    { params }: { params: { storeId: string } }
+    { params }: { params: { storeId: string, categoryId: string } }
 ) {
     try {
-        if (!params.storeId) {
-            return new NextResponse("Store ID is required", { status: 400 });
+        if (!params.storeId || !params.categoryId) {
+            return new NextResponse("Store ID and Category ID are required", { status: 400 });
         }
 
         const supabase = await createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-
-        if (!user) {
-            return new NextResponse("Unauthenticated", { status: 401 });
-        }
-
-        const { data } = await supabase.from('categories').select().eq('store_id', params.storeId).single();
+        const { data } = await supabase.from('categories').select().eq('id', params.categoryId).single();
 
         console.log('[CATEGORIES-GET]', data);
         return NextResponse.json(data);
