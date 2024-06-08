@@ -10,7 +10,7 @@ import { DataTable } from "./data-table";
 import { columns } from "./columns";
 import { ApiList } from "@/components/ui/api-list";
 
-type CategoryColumn = Database['public']['Tables']['categories']['Row'] | { billboard_label: string };
+type CategoryColumn = Database['public']['Tables']['categories']['Row'] & { billboard_label: string };
 
 
 interface CategoryClientProps {
