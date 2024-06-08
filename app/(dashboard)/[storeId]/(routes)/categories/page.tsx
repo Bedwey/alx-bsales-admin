@@ -3,7 +3,7 @@ import { CategoryClient } from './components/client'
 import { createClient } from '@/utils/supabase/server';
 import { Database } from '@/utils/supabase/supabase';
 
-type Category = Database['public']['Tables']['categories']['Row'];
+type Category = Database['public']['Tables']['categories']['Row'] & { billboard_label: string };
 
 const CategoriesPage = async ({ params }: { params: { storeId: string } }) => {
     const supabase = await createClient();
