@@ -53,7 +53,7 @@ export default function Sidebar() {
         {
             title: "Products",
             icon: Package,
-            href: "/products",
+            href: `/${params.storeId}/products`,
         },
         {
             title: "Orders",

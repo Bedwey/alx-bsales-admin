@@ -8,13 +8,14 @@ type Category = Database['public']['Tables']['categories']['Row'];
 const CategoriesPage = async ({ params }: { params: { storeId: string } }) => {
     const supabase = await createClient();
 
-    const { data: categories } = await supabase.from('categories').select().eq('store_id', params.storeId) || [];
+    const { data: categories } = await supabase.from('categories').select('*, billboards(*)').eq('store_id', params.storeId) || [];
 
     const formattedCategories: Category[] = categories?.map((item) => ({
         id: item.id,
         name: item.name,
         store_id: item.store_id,
         billboard_id: item.billboard_id,
+        billboard_label: item.billboards?.label || "",
         created_at: format(item.created_at, 'MM/dd/yyyy'),
     })) || [];
 

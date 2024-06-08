@@ -33,7 +33,6 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
             setLoading(true);
             await axios.delete(`/api/${params.storeId}/colors/${data.id}`);
             router.refresh();
-            router.push(`/${params.storeId}/colors`);
             toast.success('Color deleted successfully');
         } catch (error) {
             toast.error('Something went wrong. Please try again.');
@@ -72,7 +71,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
                         <Edit className="mr-2 h-4 w-4" />
                         Update
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setOpen(true)}>
                         <Trash className="mr-2 h-4 w-4" />
                         Delete
                     </DropdownMenuItem>

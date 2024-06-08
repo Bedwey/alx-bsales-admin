@@ -10,14 +10,14 @@ import { DataTable } from "./data-table";
 import { columns } from "./columns";
 import { ApiList } from "@/components/ui/api-list";
 
-type CategoryColumn = Database['public']['Tables']['categories']['Row'] | { billboard_label: string };
+type Product = Database['public']['Tables']['products']['Row'] & { price_formated: string, category_name: string, color_name: string, color_value: string, size_name: string };
 
 
-interface CategoryClientProps {
-    data: CategoryColumn[];
+interface ProductClientProps {
+    data: Product[];
 }
 
-export const CategoryClient: React.FC<CategoryClientProps> = ({ data }) => {
+export const ProductClient: React.FC<ProductClientProps> = ({ data }) => {
     const router = useRouter();
     const params = useParams();
 
@@ -25,11 +25,11 @@ export const CategoryClient: React.FC<CategoryClientProps> = ({ data }) => {
         <>
             <div className="flex items-center justify-between">
                 <Heading
-                    title={`Categories (${data.length})`}
-                    description="List of all categories."
+                    title={`Products (${data.length})`}
+                    description="Manage your products from your store."
                 />
 
-                <Button onClick={() => router.push(`/${params.storeId}/categories/new`)}>
+                <Button onClick={() => router.push(`/${params.storeId}/products/new`)}>
                     <Plus className="mr-2 h-4 w-4" />
                     Add New
                 </Button>
@@ -41,12 +41,12 @@ export const CategoryClient: React.FC<CategoryClientProps> = ({ data }) => {
             />
             <Heading
                 title="API"
-                description="API for categories."
+                description="API for products."
             />
             <Separator />
             <ApiList
-                entityName="categories"
-                entityIdName="categoryId"
+                entityName="products"
+                entityIdName="productId"
             />
         </>
     );

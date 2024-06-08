@@ -10,7 +10,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
-type CategoryColumn = Database['public']['Tables']['categories']['Row'];
+type CategoryColumn = Database['public']['Tables']['categories']['Row'] | { billboard_label: string };
 
 interface CellActionProps {
     data: CategoryColumn;
@@ -33,7 +33,6 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
             setLoading(true);
             await axios.delete(`/api/${params.storeId}/categories/${data.id}`);
             router.refresh();
-            router.push(`/${params.storeId}/categories`);
             toast.success('Category deleted successfully');
         } catch (error) {
             toast.error('Something went wrong. Please try again.');
@@ -72,7 +71,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
                         <Edit className="mr-2 h-4 w-4" />
                         Update
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setOpen(true)}>
                         <Trash className="mr-2 h-4 w-4" />
                         Delete
                     </DropdownMenuItem>

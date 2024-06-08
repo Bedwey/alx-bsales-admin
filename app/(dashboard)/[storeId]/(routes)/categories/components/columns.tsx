@@ -4,7 +4,7 @@ import { Database } from "@/utils/supabase/supabase"
 import { ColumnDef } from "@tanstack/react-table"
 import { CellAction } from "./cell-action";
 
-type CategoryColumn = Database['public']['Tables']['categories']['Row'];
+type CategoryColumn = Database['public']['Tables']['categories']['Row'] | { billboard_label: string };
 
 export const columns: ColumnDef<CategoryColumn>[] = [
     {
@@ -12,7 +12,7 @@ export const columns: ColumnDef<CategoryColumn>[] = [
         header: "Name",
     },
     {
-        accessorKey: "billboard_id",
+        accessorKey: 'billboard_label',
         header: "Billboard",
     },
     {

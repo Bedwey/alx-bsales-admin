@@ -10,10 +10,10 @@ import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
-type SizeColumn = Database['public']['Tables']['sizes']['Row'];
+type ProductColumn = Database['public']['Tables']['products']['Row'] | { category_name: string, color_name: string, size_name: string };
 
 interface CellActionProps {
-    data: SizeColumn;
+    data: ProductColumn;
 }
 
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
@@ -31,11 +31,11 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
     const onDelete = async () => {
         try {
             setLoading(true);
-            await axios.delete(`/api/${params.storeId}/sizes/${data.id}`);
+            await axios.delete(`/api/${params.storeId}/products/${data.id}`);
             router.refresh();
-            toast.success('Size deleted successfully');
+            toast.success('Product deleted successfully');
         } catch (error) {
-            toast.error('Something went wrong. Please try again.');
+            toast.error('Failed to delete product');
         } finally {
             setLoading(false);
             setOpen(false);
@@ -67,7 +67,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
                         <Copy className="mr-2 h-4 w-4" />
                         Copy Id
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => router.push(`/${params.storeId}/sizes/${data.id}`)}>
+                    <DropdownMenuItem onClick={() => router.push(`/${params.storeId}/products/${data.id}`)}>
                         <Edit className="mr-2 h-4 w-4" />
                         Update
                     </DropdownMenuItem>

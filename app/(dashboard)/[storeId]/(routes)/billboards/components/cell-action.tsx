@@ -33,7 +33,6 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
             setLoading(true);
             await axios.delete(`/api/${params.storeId}/billboards/${data.id}`);
             router.refresh();
-            router.push(`/${params.storeId}/billboards`);
             toast.success('Billboard deleted successfully');
         } catch (error) {
             toast.error('Failed to delete billboard');
@@ -72,7 +71,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
                         <Edit className="mr-2 h-4 w-4" />
                         Update
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setOpen(true)}>
                         <Trash className="mr-2 h-4 w-4" />
                         Delete
                     </DropdownMenuItem>
