@@ -11,12 +11,6 @@ export async function GET(
         }
 
         const supabase = await createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-
-        if (!user) {
-            return new NextResponse("Unauthenticated", { status: 401 });
-        }
-
         const { data } = await supabase.from('colors').select().eq('store_id', params.storeId);
 
         console.log('[COLORS-GET]', data);

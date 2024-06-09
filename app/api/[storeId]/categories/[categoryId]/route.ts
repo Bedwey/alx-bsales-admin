@@ -11,7 +11,10 @@ export async function GET(
         }
 
         const supabase = await createClient();
-        const { data } = await supabase.from('categories').select().eq('id', params.categoryId).single();
+        const { data } = await supabase.from('categories')
+            .select('*, billboards(*)')
+            .eq('id', params.categoryId)
+            .single();
 
         console.log('[CATEGORIES-GET]', data);
         return NextResponse.json(data);
@@ -38,8 +41,8 @@ export async function PATCH(
             return new NextResponse("Unauthenticated", { status: 401 });
         }
 
-        const { name, billboardId } = await req.json();
-        const { data } = await supabase.from('categories').update({ name, billboard_id: billboardId }).eq('id', params.categoryId);
+        const { name, billboard_id } = await req.json();
+        const { data } = await supabase.from('categories').update({ name, billboard_id }).eq('id', params.categoryId);
 
         console.log('[CATEGORIES-PATCH]', data);
         return NextResponse.json(data);

@@ -11,13 +11,12 @@ export async function GET(
         }
 
         const supabase = await createClient();
-        const { data: { user } } = await supabase.auth.getUser();
 
-        if (!user) {
-            return new NextResponse("Unauthenticated", { status: 401 });
-        }
-
-        const { data } = await supabase.from('categories').select().eq('store_id', params.storeId);
+        const { data } = await supabase
+            .from('categories')
+            .select('*, billboards(*)')
+            .eq('store_id', params.storeId)
+            .order('created_at', { ascending: false });
 
         console.log('[CATEGORIES-GET]', data);
         return NextResponse.json(data);

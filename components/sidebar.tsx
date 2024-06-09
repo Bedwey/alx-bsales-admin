@@ -19,6 +19,7 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { useParams, usePathname } from "next/navigation";
+import { ModeToggle } from "./theme-toggle";
 
 export default function Sidebar() {
     const pathName = usePathname();
@@ -93,6 +94,8 @@ export default function Sidebar() {
                 ))}
             </nav>
             <nav className="mt-auto flex flex-col items-center gap-4 px-2 py-4">
+                <ModeToggle />
+
                 <Tooltip>
                     <TooltipTrigger asChild>
                         <Link

@@ -18,11 +18,6 @@ export async function GET(
         }
 
         const supabase = await createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-
-        if (!user) {
-            return new NextResponse("Unauthenticated", { status: 401 });
-        }
 
         let query = supabase.from('products').select('*, products_images(*), categories(*), colors(*), sizes(*)')
 
@@ -42,7 +37,7 @@ export async function GET(
             query = query.eq('is_featured', isFeatured);
         }
 
-        const { data } = await query.order('created_at', { ascending: false });
+        const { data } = await query.eq('is_archived', false).order('created_at', { ascending: false });
 
         console.log('[PRODUCTS-GET]', data);
         return NextResponse.json(data);

@@ -11,16 +11,18 @@ const OrdersPage = async ({ params }: { params: { storeId: string } }) => {
 
     const { data: orders } = await supabase
         .from('orders')
-        .select('*, orders_items(*, products(*))')
+        .select('*, order_items(*, products(*))')
         .eq('store_id', params.storeId) || [];
+
+
 
     const formattedOrders: Order[] = orders?.map((item) => ({
         id: item.id,
         phone: item.phone,
         address: item.address,
         is_paid: item.is_paid,
-        products: item.orders_items.map((ordersItem) => ordersItem.products[0].name).join(', '),
-        totalPrice: formater.format(item.orders_items.reduce((total, item2) => { return total + Number(item2.products[0].price) }, 0)),
+        products: item.order_items.map((orderItem) => orderItem!.products!.name).join(', '),
+        totalPrice: formater.format(item.order_items.reduce((total, item2) => { return total + Number(item2.products!.price) }, 0)),
         created_at: format(item.created_at, 'MM/dd/yyyy'),
         store_id: item.store_id,
     })) || [];
